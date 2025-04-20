@@ -1,5 +1,5 @@
 {
-    "name": "RefRawNxtLightSensorMonitor",
+    "name": "RefRawNxtLightSensorsMonitor",
     "version": "0.0.4",
     "description": "",
     "dependencies": {

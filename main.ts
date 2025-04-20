@@ -1,55 +1,36 @@
-const enum State {
-    Nothing,
-    Waiting,
-    Search,
-    SaveWhiteRefRaw,
-    SaveBlackRefRaw,
-    CalculateMedian,
-    CalculationCompleted
-}
+// let lineSensors: sensors.NXTLightSensor[] = [sensors.nxtLight1, sensors.nxtLight2, sensors.nxtLight3, sensors.nxtLight4]; // Массив всех портов датчиков отражения nxt
+let lineSensors: sensors.ColorSensor[] = [sensors.color1, sensors.color2, sensors.color3, sensors.color4]; // Массив всех портов датчиков цвета
 
-function calculateMedian(numbers: number[]): number {
-    if (numbers.length === 0) return null;
-    numbers = numbers.sort((a, b) => a - b);
-    const half = Math.floor(numbers.length / 2);
-    return numbers.length % 2 ? numbers[half] : (numbers[half - 1] + numbers[half]) / 2;
-}
+function Main(ls: sensors.ColorSensor[] | sensors.NXTLightSensor[]) {
+    let state = State.ShowValues;
+    let fileName = "ref_raw_line_sensor.txt";
 
-function Main () {
-    let state = State.Nothing;
-    let fileName = "ref_raw_nxt_light_sensor.txt";
+    let refRaw: number[] = [0, 0, 0, 0]; // Массив для хранения сырых значений отражения с датчика
 
-    // let nxtLightSensors: sensors.NXTLightSensor[] = [sensors.nxtLight1, sensors.nxtLight2, sensors.nxtLight3, sensors.nxtLight4]; // Массив всех портов датчиков отражения nxt
-    let colorSensors: sensors.ColorSensor[] = [sensors.color1, sensors.color2, sensors.color3, sensors.color4]; // Массив всех портов датчиков цвета
-    // let nxtLightSensorRefRaw: number[] = [0, 0, 0, 0]; // Массив для хранения сырых значений с датчика отражения nxt
-    let colorSensorRefRaw: number[] = [0, 0, 0, 0]; // Массив для хранения сырых значений с датчика отражения nxt
-
-    let whiteRefRawValues: number[][] = [[550], [540], [545], [510]]; // Массив для хранения сырых значений на белом
-    let blackRefRawValues: number[][] = [[650], [640], [666], [656]]; // Массив для хранения сырых значений на чёрном
+    let whiteRefRawValues: number[][] = [[0], [0], [0], [0]]; // Массив для хранения сырых значений на белом
+    let blackRefRawValues: number[][] = [[0], [0], [0], [0]]; // Массив для хранения сырых значений на чёрном
 
     let whiteRefRawMedianValues: number[] = [0, 0, 0, 0];
     let blackRefRawMedianValues: number[] = [0, 0, 0, 0];
     
     while (true) {
-        // Считываем сырые значения с датчика отражения nxt
-        // for (let i = 0; i < 4; i++) nxtLightSensorRefRaw[i] = nxtLightSensors[i].light(NXTLightIntensityMode.ReflectedRaw);
-        for (let i = 0; i < 4; i++) colorSensorRefRaw[i] = colorSensors[i].light(LightIntensityMode.ReflectedRaw);
+        for (let i = 0; i < 4; i++) { // Считываем сырые значения отражения с датчика
+            if (ls[i] instanceof sensors.ColorSensor) refRaw[i] = (ls[i] as sensors.ColorSensor).light(LightIntensityMode.ReflectedRaw);
+            else if (ls[i] instanceof sensors.NXTLightSensor) refRaw[i] = (ls[i] as sensors.NXTLightSensor).light(NXTLightIntensityMode.ReflectedRaw);
+            else return;
+        }
 
-        if (state == State.Nothing && brick.buttonEnter.isPressed()) {
+        if (state == State.ShowValues && brick.buttonEnter.isPressed()) {
             state = State.Waiting;
         } else if (state == State.Waiting && !brick.buttonEnter.isPressed()) {
             state = State.Search;
         } else if (state == State.Search && brick.buttonUp.isPressed()) {
             state = State.SaveWhiteRefRaw;
-            for (let i = 0; i < 4; i++) {
-                whiteRefRawValues[i].push(colorSensorRefRaw[i]);
-            }
+            for (let i = 0; i < 4; i++) whiteRefRawValues[i].push(refRaw[i]);
             // console.log(colorSensorRefRaw.join(', '));
         } else if (state == State.Search && brick.buttonDown.isPressed()) {
             state = State.SaveBlackRefRaw;
-            for (let i = 0; i < 4; i++) {
-                blackRefRawValues[i].push(colorSensorRefRaw[i]);
-            }
+            for (let i = 0; i < 4; i++) blackRefRawValues[i].push(refRaw[i]);
             // console.log(colorSensorRefRaw.join(', '));
         } else if ((state == State.SaveWhiteRefRaw || state == State.SaveBlackRefRaw) && !brick.buttonUp.isPressed() && !brick.buttonDown.isPressed()) {
             state = State.Search;
@@ -69,12 +50,9 @@ function Main () {
             state = State.CalculationCompleted;
         }
 
-        // Выводим на экран
-        brick.clearScreen();
-        // for (let i = 0; i < 4; i++) brick.showValue("refRawPort" + (i + 1), nxtLightSensorRefRaw[i], i + 1);
-        for (let i = 0; i < 4; i++) brick.showValue("refRawPort" + (i + 1), colorSensorRefRaw[i], i + 1);
-
-        if (state == State.Nothing) {
+        brick.clearScreen(); // Выводим на экран
+        for (let i = 0; i < 4; i++) brick.showValue("refRawPort" + (i + 1), refRaw[i], i + 1);
+        if (state == State.ShowValues) {
             brick.printString("Press ENTER to search", 6);
             brick.printString("median values", 7);
         } else if (state == State.Search) {
@@ -99,4 +77,4 @@ function Main () {
     }
 }
 
-Main();
+Main(lineSensors);
