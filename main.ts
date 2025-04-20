@@ -12,27 +12,29 @@ function Main () {
         brick.clearScreen();
         for (let i = 0; i < 4; i++) brick.showValue("refRawPort" + (i + 1), nxtLightSensorRefRaw[0], i + 1);
 
-        brick.printString("Press UP to save white", 7);
-        brick.printString("Press DOWN to save black", 8);
+        brick.printString("Press UP to save white", 6);
+        brick.printString("Press DOWN to save black", 7);
+        brick.printString("Press ENTER to calculate", 8);
+        brick.printString("median values", 9);
 
         // Запись значений при нажатии кнопок
         if (brick.buttonUp.isPressed()) { // Копируем текущие значения в массив для белого
             whiteRefRawValues.push(nxtLightSensorRefRaw);
             console.log(nxtLightSensorRefRaw.join(', '));
-            brick.printString("Saved to White!", 10);
+            brick.printString("Saved to White!", 11);
             while (brick.buttonUp.isPressed()) loops.pause(0.001);
             // loops.pause(250); // Задержка для предотвращения многократного срабатывания
         } else if (brick.buttonDown.isPressed()) { // Копируем текущие значения в массив для чёрного
             blackRefRawValues.push(nxtLightSensorRefRaw);
             console.log(nxtLightSensorRefRaw.join(', '));
-            brick.printString("Saved to Black!", 10);
+            brick.printString("Saved to Black!", 11);
             while (brick.buttonDown.isPressed()) loops.pause(0.001);
             // loops.pause(250); // Задержка для предотвращения многократного срабатывания
         }
 
         if (brick.buttonEnter.isPressed()) {
             // Действие при нажатии Enter (можно добавить обработку массивов)
-            brick.printString("Processing...", 10);
+            brick.printString("Processing...", 11);
             loops.pause(500);
         }
 
