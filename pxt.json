@@ -4,11 +4,13 @@
     "description": "",
     "dependencies": {
         "ev3": "*",
-        "nxt-light-sensor": "*"
+        "nxt-light-sensor": "*",
+        "storage": "*"
     },
     "files": [
         "main.ts",
-        "README.md"
+        "README.md",
+        "custom.ts"
     ],
     "testFiles": [
         "test.ts"
