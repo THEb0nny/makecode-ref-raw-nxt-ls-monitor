@@ -17,7 +17,7 @@ function calculateMedian(numbers: number[]): number {
 
 function Main () {
     let state = State.Nothing;
-    let fileName = "ref_raw_light_sensor.txt";
+    let fileName = "ref_raw_nxt_light_sensor.txt";
 
     // let nxtLightSensors: sensors.NXTLightSensor[] = [sensors.nxtLight1, sensors.nxtLight2, sensors.nxtLight3, sensors.nxtLight4]; // Массив всех портов датчиков отражения nxt
     let colorSensors: sensors.ColorSensor[] = [sensors.color1, sensors.color2, sensors.color3, sensors.color4]; // Массив всех портов датчиков цвета
