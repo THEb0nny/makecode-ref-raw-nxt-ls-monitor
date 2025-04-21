@@ -1,23 +1,23 @@
-// let lineSensors: sensors.NXTLightSensor[] = [sensors.nxtLight1, sensors.nxtLight2, sensors.nxtLight3, sensors.nxtLight4]; // Массив всех портов датчиков отражения nxt
-let lineSensors: sensors.ColorSensor[] = [sensors.color1, sensors.color2, sensors.color3, sensors.color4]; // Массив всех портов датчиков цвета
+let lineSensors: sensors.NXTLightSensor[] = [sensors.nxtLight1, sensors.nxtLight2, sensors.nxtLight3, sensors.nxtLight4]; // Массив всех портов датчиков отражения nxt
+// let lineSensors: sensors.ColorSensor[] = [sensors.color1, sensors.color2, sensors.color3, sensors.color4]; // Массив всех портов датчиков цвета
 
-function Main(ls: sensors.ColorSensor[] | sensors.NXTLightSensor[]) {
+let fileName = "ref_raw_line_sensor.txt"; // Имя временного файла записи медианных значений
+
+function Main() {
     let state = State.ShowValues;
-    let fileName = "ref_raw_line_sensor.txt";
 
     let refRaw: number[] = [0, 0, 0, 0]; // Массив для хранения сырых значений отражения с датчика
 
-    let whiteRefRawValues: number[][] = [[0], [0], [0], [0]]; // Массив для хранения сырых значений на белом
-    let blackRefRawValues: number[][] = [[0], [0], [0], [0]]; // Массив для хранения сырых значений на чёрном
+    let whiteRefRawValues: number[][] = [[], [], [], []]; // Массив для хранения сырых значений на белом
+    let blackRefRawValues: number[][] = [[], [], [], []]; // Массив для хранения сырых значений на чёрном
 
     let whiteRefRawMedianValues: number[] = [0, 0, 0, 0];
     let blackRefRawMedianValues: number[] = [0, 0, 0, 0];
     
     while (true) {
         for (let i = 0; i < 4; i++) { // Считываем сырые значения отражения с датчика
-            if (ls[i] instanceof sensors.ColorSensor) refRaw[i] = (ls[i] as sensors.ColorSensor).light(LightIntensityMode.ReflectedRaw);
-            else if (ls[i] instanceof sensors.NXTLightSensor) refRaw[i] = (ls[i] as sensors.NXTLightSensor).light(NXTLightIntensityMode.ReflectedRaw);
-            else return;
+            refRaw[i] = lineSensors[i].light(NXTLightIntensityMode.ReflectedRaw);
+            // refRaw[i] = lineSensors[i].light(LightIntensityMode.ReflectedRaw);
         }
 
         if (state == State.ShowValues && brick.buttonEnter.isPressed()) {
@@ -40,8 +40,8 @@ function Main(ls: sensors.ColorSensor[] | sensors.NXTLightSensor[]) {
                 whiteRefRawMedianValues[i] = calculateMedian(whiteRefRawValues[i]);
                 blackRefRawMedianValues[i] = calculateMedian(blackRefRawValues[i]);
             }
-            storage.temporary.remove(fileName);
-            storage.temporary.limit(fileName, 0);
+            storage.temporary.remove(fileName); // Удалить файл с таким же именем
+            storage.temporary.limit(fileName, 0); // Установить лимит размера файла
             storage.temporary.appendLine(fileName, "White medians:");
             storage.temporary.appendLine(fileName, whiteRefRawMedianValues.join(', '));
             storage.temporary.appendLine(fileName, "Black medians:");
@@ -77,4 +77,4 @@ function Main(ls: sensors.ColorSensor[] | sensors.NXTLightSensor[]) {
     }
 }
 
-Main(lineSensors);
+Main();
